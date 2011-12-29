@@ -29,9 +29,10 @@ function initialize()
 	{
 		var sheet = document.createElement('style');
 		/*creates the CSS that is used by this extension*/
-		sheet.innerHTML = 	".cllFrame{width:100%;height:286px;bottom: 0px; border: #777 1px solid} "+
+		sheet.innerHTML = 	".cllFrameMp3{height:27px !important;} "+
+							".cllFrame{width:400px;height:286px;bottom: 0px; border: #777 1px solid} "+
 							".cll {z-index: 2; position: fixed; overflow-x: hidden; overflow-y: hidden; left: 10px; "+
-									"bottom: 0px; width: 400px; height: 30px;} "+
+									"bottom: 0px; width: 402px; height: 30px;} "+
 							".cllHead {background-color:#484848;width:170px; float:left; height:30px;vertical-align:center; cursor: pointer;} "+ 
 							".cllText{color:white; font:bold 13px/30px arial,sans-serif; margin: auto 0px; padding-top:1px; padding-left:10px;text-align:center; cursor: pointer; float:left;} "+
 							".cllLinks {color:red; font-weight:bold; padding-right: 5px;cursor: pointer;} "+
@@ -58,7 +59,7 @@ function initialize()
 		youTubeBoxHead.innerHTML = '<p class="cllText"><button id="mn" class="title_widget_button fLeft" style="vertical-align:bottom !important;" title="Minimize" aria-label="Minimize">' + "<img src='"+chrome.extension.getURL("youtubeicon.png")+"'></button>YouTube+ </p>" + '<button id="mn" class="title_widget_button hoverOutline minimize fRight" title="Minimize" aria-label="Minimize">  <img src="https://talkgadget.google.com/talkgadget/resources/minimize.png" class="icon  minimize "> </button>';
 		
 		/*Sets the onclick to Expand/Collapse*/
-		youTubeBoxHead.onclick = function(){ this.parentNode.style.height=((this.parentNode.style.height=='30px')&&(this.parentNode.getAttribute('cllState') !== "false"))? '316px': '30px';};
+		youTubeBoxHead.onclick = function(){ this.parentNode.style.height=((this.parentNode.style.height=='30px')&&(this.parentNode.getAttribute('cllState') !== "false"))? (this.parentNode.lastChild.className === "cllFrame cllFrameMp3")? '57px' : '316px': '30px';}; /*Different height for MP3 (added)*/
 		
 		/*Appends header div to container div*/
 		youTubeBox.appendChild(youTubeBoxHead);
@@ -99,8 +100,13 @@ function placeLinks()
 			}	
 			else if(Links[i].href.indexOf("http://youtu.be/") != -1)
 			{
-				var embedLoc = "http://www.youtube.com/embed/" + Links[i].href.replace("http://youtu.be/", "");
+				embedLoc = "http://www.youtube.com/embed/" + Links[i].href.replace("http://youtu.be/", "");
 				/*Found googles short-hand Youtube Link*/
+			}
+			else if(Links[i].href.indexOf(".mp3") != -1)
+			{
+				embedLoc = Links[i].href; 
+				/*Found mp3 Link*/
 			}
 			else
 			{
@@ -143,14 +149,25 @@ function toggle(element)
 	/*Recreates the iframe because I was having issues with the iframe not loading by just changing the src.*/
 	var newIframe = document.createElement('iframe');
 	newIframe.name = "cllFrame";
-	newIframe.className  = "cllFrame";
 	newIframe.id = "cllFrame";
-	newIframe.setAttribute('src', newLink);
+	
+	if(newLink.indexOf(".mp3") == -1)
+	{	
+		newIframe.className  = "cllFrame";
+		newIframe.setAttribute('src', newLink);
+	}
+	else
+	{
+		newIframe.className  = "cllFrame cllFrameMp3";
+		newIframe.setAttribute('src', "http://www.google.com/reader/ui/3523697345-audio-player.swf?autoPlay=true&audioUrl=" +newLink);
+		newIframe.setAttribute('audioUrl', newLink);
+	}
+	
 	youTubeBox.appendChild(newIframe);
 	
 	/*Expand the bottom left area to show iframe*/
 	var oYouTubeBox = document.getElementById("cllDiv");
-	oYouTubeBox.style.height='316px';
+	oYouTubeBox.style.height= (newLink.indexOf(".mp3") == -1)?'316px':'57px'; /*Different height for MP3*/
 	oYouTubeBox.setAttribute('cllState', "true");
 }
 
