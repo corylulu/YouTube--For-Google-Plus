@@ -19,18 +19,57 @@ var iframe = document.createElement('iframe');
 /*Keeps a count of found links on page*/
 var CurrentCount = 0;
 var gmCurrentCount = 0; //Google Music Addin
+var periodicForceUpdateCounter = 0;
+var CurrentDocumentLocation = document.location.href;
 
 initialize();
-setInterval(function()
-{ 
-	/*Cross checks CurrentCount with any new links found, if changed, call placeLinks()*/
+
+/*Disables this script from running in Notifications page and Apps page 
+ (Notifications page will need extra code to work since it needs to access a sibling iFrame)*/
+if(document.location.href.indexOf("/_/") == -1)
+{
+	var regularChecker = setInterval(function()
+	{ 		
+		if(periodicForceUpdateCounter > 5)
+		{
+			/*Forces update every 12 seconds to ensure all links are found.*/
+			ForceUpdate();
+			periodicForceUpdateCounter=0;
+		}
+		if(CurrentDocumentLocation != document.location.href)
+		{
+			/*If script detects a page location change, execute script*/
+			
+			/*Forces update to all links, but waits first to ensure page is loaded*/
+			setTimeout("ForceUpdate()", 3000);
+			CurrentDocumentLocation = document.location.href;
+			/*Resets periodic check counter*/
+			periodicForceUpdateCounter=0;
+		}
+		else
+		{
+			var Links = document.getElementsByClassName(a_className_userLink);
+			var gmLinks = document.getElementsByClassName(googlemusic_className_iframe);
+			
+			/*Cross checks CurrentCount with any new links found, if changed, call placeLinks()*/
+			if(CurrentCount != Links.length)
+				PlaceLinks(Links);
+			if(gmCurrentCount != gmLinks.length)
+				gmPlaceLinks(gmLinks);
+		}
+		periodicForceUpdateCounter++;
+	}, 2000);
+}
+
+
+/*Updates all links without condition.*/
+function ForceUpdate()
+{
 	var Links = document.getElementsByClassName(a_className_userLink);
 	var gmLinks = document.getElementsByClassName(googlemusic_className_iframe);
-	if(CurrentCount != Links.length)
-		PlaceLinks(Links);
-	if(gmCurrentCount != gmLinks.length)
-		gmPlaceLinks(gmLinks);
-}, 2000);
+	PlaceLinks(Links);
+	gmPlaceLinks(gmLinks);
+}
 
 function initialize()
 { 
@@ -116,14 +155,14 @@ function PlaceLinks(Links)
 				
 			var newField = document.createElement('a');
 			var embedLoc = ""; /*Stores full location of embed-form link*/
-			if(Links[i].href.indexOf("http://www.youtube.com/watch?v=") != -1)
+			if(Links[i].href.indexOf("//www.youtube.com/watch?v=") != -1)
 			{
-				embedLoc = "http://www.youtube.com/embed/" + Links[i].href.replace("http://www.youtube.com/watch?v=", "") + "?autoplay=1";
+				embedLoc = "//www.youtube.com/embed/" + Links[i].href.replace("http://www.youtube.com/watch?v=", "") + "?autoplay=1";
 				/*Found googles full Youtube Link*/
 			}	
-			else if(Links[i].href.indexOf("http://youtu.be/") != -1)
+			else if(Links[i].href.indexOf("//youtu.be/") != -1)
 			{
-				embedLoc = "http://www.youtube.com/embed/" + Links[i].href.replace("http://youtu.be/", "") + "?autoplay=1";
+				embedLoc = "//www.youtube.com/embed/" + Links[i].href.replace("http://youtu.be/", "") + "?autoplay=1";
 				/*Found googles short-hand Youtube Link*/
 			}
 			else if(Links[i].href.indexOf(".mp3") != -1)
@@ -199,7 +238,7 @@ function gmPlaceLinks(Links)
 			/*Sets link target to the iframe (shouldn't actually do anything)*/
 			newField.target = "cllFrame";
 			/*Sets text*/
-			newField.innerHTML ="<img src=\""+ chrome.extension.getURL("youtubeicon.png") + "\" style='position:relative; top:4px;' /> Preview song in YouTube+ dock.";
+			newField.innerHTML ="<img src=\""+ chrome.extension.getURL("youtubeicon.png") + "\" style='position:relative; top:4px;' /> Play song in YouTube+ dock.";
 			/*Inserts my link directly before previous YouTube link*/
 			Links[i].parentNode.insertBefore(newField, Links[i]);
 			
