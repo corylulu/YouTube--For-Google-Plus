@@ -1,6 +1,6 @@
 {
   "name": "Youtube+ for Google Plus",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "icons": { 
 		"16":"images/icon16.png",
 		"48":"images/icon48.png",
@@ -13,5 +13,5 @@
       "js": [ "ultimate.js" ],
 	  "run_at": "document_end",
       "matches": [ "http://plus.google.com/*", "https://plus.google.com/*"]
-	}]  
+	}]
 }
