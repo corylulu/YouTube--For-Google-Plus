@@ -85,7 +85,7 @@ function initialize()
 							".cll {z-index: 2; position: fixed; overflow-x: hidden; overflow-y: hidden; left: 10px; "+
 							"bottom: 0px; width: 402px; height: "+ hiddenHeight +";} "+
 							".cllHead {background-color:#484848;width:125px; float:left; height:30px;vertical-align:center; cursor: pointer;} "+
-							".cllHeadButtons {background-color:#484848;width:45px; float:left; height:30px;vertical-align:center; cursor: pointer;} "+
+							".cllHeadButtons {background-color:#484848;width:70px; float:left; height:30px;vertical-align:center; cursor: pointer;} "+
 							".cllText{color:white; font:bold 13px/"+ defaultHeight +" arial,sans-serif; margin: auto 0px; padding-top:1px; padding-left:10px;text-align:center; cursor: pointer; float:left;} "+
 							".cllLinks {color:red; font:bold 11px arial,sans-serif; padding-right: 5px;cursor: pointer; position:relative; top:3px;} "+
 							".cllLinksVmid { vertical-align: middle;}"+
@@ -122,6 +122,16 @@ function initialize()
 		var youTubeBoxHeadButtons = document.createElement('div');
 		youTubeBoxHeadButtons.className  = "cllHeadButtons";
 		
+		/*Adds linkback button*/
+		var linkbackButton = document.createElement('button');
+		linkbackButton.className = "title_widget_button hoverOutline minimize";
+		linkbackButton.id = "cllOP";
+		linkbackButton.setAttribute("cllLinkback", "none");
+		linkbackButton.setAttribute("title", "Original Post");
+		linkbackButton.innerHTML = '<img src='+chrome.extension.getURL("opicon.png")+' class="icon">';
+		linkbackButton.onclick = function(){ if(this.getAttribute("cllLinkback") != "none")document.location = this.getAttribute("cllLinkback"); }; 
+		/*Links back to the original post*/
+		
 		/*Adds minimize button*/
 		var minimizeButton = document.createElement('button');
 		minimizeButton.className = "title_widget_button hoverOutline minimize";
@@ -136,7 +146,8 @@ function initialize()
 		hideButton.innerHTML = '<img src="https://talkgadget.google.com/talkgadget/resources/close.png" class="icon">';
 		hideButton.onclick = function() { setDockHeight("hide"); removeDockedFrame(); };
 		
-		/*Appends buttons to header and header to div*/		
+		/*Appends buttons to header and header to div*/
+		youTubeBoxHeadButtons.appendChild(linkbackButton);		
 		youTubeBoxHeadButtons.appendChild(minimizeButton);
 		youTubeBoxHeadButtons.appendChild(hideButton);
 		youTubeBox.appendChild(youTubeBoxHeadButtons);
@@ -149,6 +160,22 @@ function initialize()
 		youTubeBox.appendChild(iframe);
 	}
 }
+
+/*Grabs URL to link back to post.*/
+function determineUrl(element) 
+{
+	/*Thanks Matt Mastracci*/
+	element = element.parentElement;
+	while (element != null) 
+	{
+		var a = element.querySelector("a[target=_blank][href*=posts]");
+		if (a)
+		return a.href; // fully qualified href
+		element = element.parentElement;
+	}
+	return null;
+}
+
 /*Sets dock height based on toggle type (toggle/hide/default)*/
 function setDockHeight(cllToggleType)
 {
@@ -213,10 +240,9 @@ function PlaceLinks(Links)
 			}
 			else if(Links[i].href.indexOf(".mp3") != -1) 					/*Found mp3 Link*/
 				embedLoc = Links[i].href;
-			else 															/*Doesn't find link, continues through loop.*/
+			else  /*Doesn't find link, continues through loop.*/
 				continue; 
 				
-			
 			/*Removes any extra commands and places Autoplay.*/
 			if((embedLoc.indexOf("&") != -1)&&(embedLoc.indexOf("//www.youtube.com/embed/") != -1))
 			{
@@ -228,7 +254,10 @@ function PlaceLinks(Links)
 			if(Links[i].className.indexOf(a_className_isTitleLink) != -1)
 				addClassName = "cllLinksVmid";
 
-			Links[i].parentNode.insertBefore(createLink(embedLoc,"false","cllLinksVmid"), Links[i]);
+			/*Gets linkback to original post*/
+			var cllLinkback = determineUrl(Links[i]);
+			
+			Links[i].parentNode.insertBefore(createLink(embedLoc,cllLinkback,"false","cllLinksVmid"), Links[i]);
 			
 		}
 		/*Keeps track of how many links were found to cross check when links are rescanned in the top setInterval() */
@@ -253,19 +282,24 @@ function gmPlaceLinks(Links)
 			else
 				continue; /*Doesn't find youtube link, continues through loop.*/
 
-			Links[i].parentNode.insertBefore(createLink(embedLoc, "true", ""), Links[i]);
+			/*Gets linkback to original post*/
+			var cllLinkback = determineUrl(Links[i]);
+			
+			Links[i].parentNode.insertBefore(createLink(embedLoc, cllLinkback, "true", ""), Links[i]);
 			
 		}
 		/*Keeps track of how many links were found to cross check when links are rescanned in the top setInterval() */
 		gmCurrentCount = Links.length;
 }
-function createLink(embedLoc, longLink, addClassName)
+function createLink(embedLoc, cllLinkback, longLink, addClassName)
 {
 	/*Creates "YouTube+" link next to existing YouTube link.*/
 	var newField = document.createElement('a'); 
-	
+		
 	/*Stores location in link*/
 	newField.setAttribute('cll', embedLoc); 
+	newField.setAttribute('cllLinkback', cllLinkback); 
+	
 	newField.className = "cllLinks " + addClassName;
 		
 	/*Force expances the YouTube+ widget in the bottom-left corner onclick and sets the src*/	
@@ -291,7 +325,13 @@ function removeDockedFrame()
 function toggle(element)
 { 
 	/*Get link from attribute we created*/
-	var newLink = element.getAttribute('cll'); 
+	var newLink = element.getAttribute('cll');
+	
+	/*Get linkback from attribute we created*/	
+	var newLinkback = element.getAttribute('cllLinkback'); 
+	
+	var originalPostButton = document.getElementById("cllOP");
+	originalPostButton.setAttribute("cllLinkback", newLinkback);
 	
 	/*Removes docked iframe*/
 	removeDockedFrame();
