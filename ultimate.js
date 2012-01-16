@@ -4,6 +4,7 @@ var a_className_isTitleLink = 'B-u-Y-j';
 var div_className_isDescLinkParent = 'B-u-wa-ea';
 var a_className_userLink = 'ot-anchor';
 var googlemusic_className_iframe = 'B-u-P0BJAe-uquGtd';
+var leavefeedback_class_toHide = 'c-zh-Wf';
 
 /*Heights of each link type in iFrame*/
 var youtubeHeight = '316px';
@@ -82,7 +83,7 @@ function initialize()
 		sheet.innerHTML = 	".cllFrameMp3{height:27px !important;} "+
 							".cllFrame{width:400px;height:286px;bottom: 0px; border: #777 1px solid} "+
 							".cll {z-index: 2; position: fixed; overflow-x: hidden; overflow-y: hidden; left: 10px; "+
-							"bottom: 0px; width: 402px; height: "+ defaultHeight +";} "+
+							"bottom: 0px; width: 402px; height: "+ hiddenHeight +";} "+
 							".cllHead {background-color:#484848;width:125px; float:left; height:30px;vertical-align:center; cursor: pointer;} "+
 							".cllHeadButtons {background-color:#484848;width:45px; float:left; height:30px;vertical-align:center; cursor: pointer;} "+
 							".cllText{color:white; font:bold 13px/"+ defaultHeight +" arial,sans-serif; margin: auto 0px; padding-top:1px; padding-left:10px;text-align:center; cursor: pointer; float:left;} "+
@@ -90,7 +91,8 @@ function initialize()
 							".cllLinksVmid { vertical-align: middle;}"+
 							".title_widget_button { height:24px; width: 20px; margin-top: 5px; margin-bottom: 0px; vertical-align:center; -webkit-appearance: none; padding: 0; margin-right: 2px; overflow: hidden; cursor: pointer; background-color: transparent; border: 0px !important;} .hoverOutline :hover{background-color: #777;}"+
 							".fRight{float:right;margin-right: 7px !important;}"+
-							".fLeft{float:left;}";
+							".fLeft{float:left;}"+
+							"."+leavefeedback_class_toHide+"{display: none !important;}";
 							
 		/*Appends css to page body*/
 		document.body.appendChild(sheet);
