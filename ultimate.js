@@ -1,10 +1,10 @@
 /*Css class names from Google Plus (likely to change over time with updates, keep here to make easier updating.)*/
-var body_className_isMainPage = 'ULpcLb';
-var a_className_isTitleLink = 'B-u-Y-j';
-var div_className_isDescLinkParent = 'B-u-wa-ea';
+var body_className_isMainPage = 'gC'; //updated from ULpcLb
+var a_className_isTitleLink = 's-r-za-C'; //updated from B-u-Y-j
+var div_className_isDescLinkParent = 's-r-pa-Ka'; //updated from B-u-wa-ea
 var a_className_userLink = 'ot-anchor';
-var googlemusic_className_iframe = 'B-u-P0BJAe-uquGtd';
-var leavefeedback_class_toHide = 'c-zh-Wf';
+var googlemusic_className_iframe = 's-r-V-cm'; //updated from B-u-P0BJAe-uquGtd
+var leavefeedback_class_toHide = 'k-Dj-zj'; //updated from c-zh-Wf
 
 /*Heights of each link type in iFrame*/
 var youtubeHeight = '316px';
@@ -87,8 +87,8 @@ function initialize()
 							".cllHead {background-color:#484848;width:125px; float:left; height:30px;vertical-align:center; cursor: pointer;} "+
 							".cllHeadButtons {background-color:#484848;width:70px; float:left; height:30px;vertical-align:center; cursor: pointer;} "+
 							".cllText{color:white; font:bold 13px/"+ defaultHeight +" arial,sans-serif; margin: auto 0px; padding-top:1px; padding-left:10px;text-align:center; cursor: pointer; float:left;} "+
-							".cllLinks {color:red; font:bold 11px arial,sans-serif; padding-right: 5px;cursor: pointer; position:relative; top:3px;} "+
-							".cllLinksVmid { vertical-align: middle;}"+
+							".cllLinks {color:red; font:bold 11px arial,sans-serif; padding-right: 5px;cursor: pointer; position:relative; top:3px; white-space: nowrap;} "+
+							".cllLinksVmid { vertical-align: middle;top: 4px !important;}"+
 							".title_widget_button { height:24px; width: 20px; margin-top: 5px; margin-bottom: 0px; vertical-align:center; -webkit-appearance: none; padding: 0; margin-right: 2px; overflow: hidden; cursor: pointer; background-color: transparent; border: 0px !important;} .hoverOutline :hover{background-color: #777;}"+
 							".fRight{float:right;margin-right: 7px !important;}"+
 							".fLeft{float:left;}"+
@@ -231,8 +231,9 @@ function PlaceLinks(Links)
 			else if(Links[i].href.indexOf("//youtu.be/") != -1)				/*Found googles short-hand Youtube Link*/
 				embedLoc = "//www.youtube.com/embed/" + Links[i].href.replace("http://youtu.be/", ""); 
 			else if(Links[i].href.indexOf("vimeo.com") != -1)					/*Found Vimeo link*/
-			{																	
-				embedLoc = Links[i].href.replace("http://www.vimeo.com/", "");
+			{	
+				var vimeoLink = "http://vimeo.com/";
+				embedLoc = Links[i].href.replace("www.", "").replace(vimeoLink, "");
 				if(embedLoc.indexOf("#") != -1) /*Replaces any commands before the ID, like "hd#0000000000" */
 					embedLoc = embedLoc.substr(embedLoc.indexOf("#") + 1, embedLoc.length);
 				embedLoc = "//player.vimeo.com/video/" + embedLoc;
@@ -252,12 +253,12 @@ function PlaceLinks(Links)
 			var addClassName = "";
 			/*Checks to see if text is Title text (has different text formatting css)*/
 			if(Links[i].className.indexOf(a_className_isTitleLink) != -1)
-				addClassName = "cllLinksVmid";
+				addClassName = a_className_isTitleLink;
 
 			/*Gets linkback to original post*/
 			var cllLinkback = determineUrl(Links[i]);
 			
-			Links[i].parentNode.insertBefore(createLink(embedLoc,cllLinkback,"false","cllLinksVmid"), Links[i]);
+			Links[i].parentNode.insertBefore(createLink(embedLoc,cllLinkback,"false", addClassName), Links[i]);
 			
 		}
 		/*Keeps track of how many links were found to cross check when links are rescanned in the top setInterval() */
